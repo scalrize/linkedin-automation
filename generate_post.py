@@ -368,7 +368,7 @@ def generate_all_posts(scraping_context):
         raise EnvironmentError("GEMINI_API_KEY environment variable is not set.")
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-pro")
+    model = genai.GenerativeModel("gemini-2.0-flash")
 
     with open(PROMPT_PATH, "r") as f:
         base_prompt = f.read()
