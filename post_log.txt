@@ -1,0 +1,4 @@
+# LinkedIn Automation — Post Log
+# This file is updated automatically after every successful run.
+# Do not edit manually — changes will be overwritten.
+# Format: [DATE] | Run: SUCCESS | Themes | Pillars | Hooks | Status

@@ -1,0 +1,83 @@
+name: LinkedIn Weekly Post Generator
+
+# ── Schedule ────────────────────────────────────────────────────────────────────
+# Runs every Monday at 00:00 UTC = 08:00 AM Bali time (WITA, UTC+8)
+# workflow_dispatch allows manual test runs from the GitHub Actions tab
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'   # Monday 00:00 UTC
+  workflow_dispatch:        # Manual trigger (for testing)
+
+# ── Permissions ─────────────────────────────────────────────────────────────────
+permissions:
+  contents: write           # Required to commit updated post_log.txt back to repo
+
+# ── Job ─────────────────────────────────────────────────────────────────────────
+jobs:
+  generate-and-send:
+    name: Generate posts & send email
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+
+      # 1. Check out the full repository (including post_log.txt for rotation state)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # 2. Set up Python
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. Install all dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Run the full pipeline: scrape → generate → email → log
+      - name: Run LinkedIn automation pipeline
+        env:
+          GEMINI_API_KEY:    ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_TOKEN:       ${{ secrets.GMAIL_TOKEN }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: python main.py
+
+      # 5. Commit updated post_log.txt back to the repository
+      #    This preserves the theme/pillar rotation state for next week's run
+      - name: Commit updated post_log.txt
+        if: success()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions Bot"
+          git add post_log.txt
+          git diff --staged --quiet || git commit -m "Auto: update post_log.txt — $(date -u '+%Y-%m-%d')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 6. Send failure notification if anything went wrong
+      #    This runs ONLY when the pipeline step fails
+      - name: Send failure notification email
+        if: failure()
+        env:
+          GMAIL_TOKEN: ${{ secrets.GMAIL_TOKEN }}
+        run: |
+          python -c "
+          import traceback
+          try:
+              from send_email import send_failure_email
+              send_failure_email(
+                  'The GitHub Actions workflow failed this week.\n\n'
+                  'Please check the Actions log for details:\n'
+                  'https://github.com/scalrize/linkedin-automation/actions\n\n'
+                  'You will need to generate this week\'s LinkedIn posts manually.'
+              )
+          except Exception as e:
+              print(f'Could not send failure notification: {e}')
+          "

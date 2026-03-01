@@ -1,0 +1,18 @@
+# LinkedIn Automation — Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Gemini AI (Post Generation)
+google-generativeai>=0.8.0
+
+# Gmail API (Email Delivery)
+google-auth>=2.28.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.120.0
+
+# Firecrawl (Web Scraping)
+firecrawl-py>=0.0.20
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
