@@ -55,6 +55,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions Bot"
+          git pull --rebase origin main
           git add post_log.txt
           git diff --staged --quiet || git commit -m "Auto: update post_log.txt — $(date -u '+%Y-%m-%d')"
           git push
