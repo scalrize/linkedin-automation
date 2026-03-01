@@ -37,20 +37,6 @@ jobs:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: python main.py
 
-      - name: Commit updated post_log.txt
-        if: steps.pipeline.outcome == 'success'
-        continue-on-error: true
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Actions Bot"
-          git add post_log.txt
-          git diff --staged --quiet && echo "No changes to post_log.txt" && exit 0
-          git commit -m "Auto: update post_log.txt — $(date -u '+%Y-%m-%d')"
-          git pull --rebase origin main
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Send failure notification email
         if: steps.pipeline.outcome == 'failure'
         env:

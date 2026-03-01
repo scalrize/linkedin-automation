@@ -99,45 +99,37 @@ def _pillar_index(name):
     return -1
 
 
-def get_rotation(last_log):
+def get_rotation(last_log=None):
     """
-    Determine which themes and pillars to use this week based on the last log.
+    Determine themes and pillars for this week using the ISO week number.
 
-    Theme sequence : last Thursday theme → next Tuesday theme → next Thursday theme
-    Pillar sequence: rotates independently per day, ensuring two different pillars
-                     are used for each day's two options.
+    This approach requires NO persistent state — it is always deterministic.
+    Each ISO week maps to a fixed combination of theme and pillar, so the
+    rotation cycles automatically without any file storage or git commits.
+
+    4-week theme cycle:  Sales → Bali Market → Legal → Construction → repeat
+    4-week pillar cycle: rotates 2 pillars per day, offset between Tue/Thu
     """
-    # ── Themes ──
-    if not last_log or "thursday_theme" not in last_log:
-        tue_theme_idx = 0
-    else:
-        last_thu_idx = _theme_index(last_log["thursday_theme"])
-        tue_theme_idx = (last_thu_idx + 1) % len(THEMES)
+    week_num = datetime.utcnow().isocalendar()[1]   # ISO week 1-53
 
-    thu_theme_idx = (tue_theme_idx + 1) % len(THEMES)
+    n = len(THEMES)    # 4
+    p = len(PILLARS)   # 4
 
-    # ── Tuesday pillars ──
-    if last_log.get("tuesday_pillars"):
-        last_p2_idx = _pillar_index(last_log["tuesday_pillars"][-1])
-        tue_p1_idx = (last_p2_idx + 1) % len(PILLARS)
-    else:
-        tue_p1_idx = 0
-    tue_p2_idx = (tue_p1_idx + 1) % len(PILLARS)
+    tue_theme_idx  = week_num % n
+    thu_theme_idx  = (week_num + 1) % n
 
-    # ── Thursday pillars ──
-    if last_log.get("thursday_pillars"):
-        last_p2_idx = _pillar_index(last_log["thursday_pillars"][-1])
-        thu_p1_idx = (last_p2_idx + 1) % len(PILLARS)
-    else:
-        # Start at offset so Thursday differs from Tuesday at first run
-        thu_p1_idx = 2
-    thu_p2_idx = (thu_p1_idx + 1) % len(PILLARS)
+    # Pillars: each week advances by 2 so both options change every week
+    tue_p1_idx = (week_num * 2) % p
+    tue_p2_idx = (week_num * 2 + 1) % p
+    # Thursday offset by +2 so it never duplicates Tuesday's pillars in the same week
+    thu_p1_idx = (week_num * 2 + 2) % p
+    thu_p2_idx = (week_num * 2 + 3) % p
 
     return {
-        "tuesday_theme":   THEMES[tue_theme_idx],
-        "thursday_theme":  THEMES[thu_theme_idx],
-        "tuesday_pillar1": PILLARS[tue_p1_idx],
-        "tuesday_pillar2": PILLARS[tue_p2_idx],
+        "tuesday_theme":    THEMES[tue_theme_idx],
+        "thursday_theme":   THEMES[thu_theme_idx],
+        "tuesday_pillar1":  PILLARS[tue_p1_idx],
+        "tuesday_pillar2":  PILLARS[tue_p2_idx],
         "thursday_pillar1": PILLARS[thu_p1_idx],
         "thursday_pillar2": PILLARS[thu_p2_idx],
     }
@@ -406,8 +398,7 @@ def generate_all_posts(scraping_context):
     with open(PROMPT_PATH, "r") as f:
         base_prompt = f.read()
 
-    last_log = read_last_log()
-    rotation  = get_rotation(last_log)
+    rotation = get_rotation()
 
     # ── Calculate target dates ──
     today = datetime.utcnow()
