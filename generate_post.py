@@ -168,7 +168,14 @@ def validate_post(post_text, hook):
 # ── Gemini Output Parsing ──────────────────────────────────────────────────────
 
 def _extract(text, tag):
-    """Extract text between {tag}_START and {tag}_END markers."""
+    """
+    Extract text between {tag}_START and {tag}_END markers.
+    Handles cases where Gemini wraps output in markdown code blocks
+    or uses slight variations in marker formatting.
+    """
+    # Strip markdown code blocks if present
+    text = text.replace("```", "").replace("`", "")
+
     start_marker = f"{tag}_START"
     end_marker   = f"{tag}_END"
     try:
@@ -176,7 +183,16 @@ def _extract(text, tag):
         e = text.index(end_marker)
         return text[s:e].strip()
     except ValueError:
-        return ""
+        # Try case-insensitive search as fallback
+        text_lower = text.lower()
+        start_lower = start_marker.lower()
+        end_lower   = end_marker.lower()
+        try:
+            s = text_lower.index(start_lower) + len(start_lower)
+            e = text_lower.index(end_lower)
+            return text[s:e].strip()
+        except ValueError:
+            return ""
 
 
 def parse_day_response(text):
@@ -233,8 +249,10 @@ Generate exactly TWO LinkedIn post options for **{day} {date_str}**.
 
 ## STRICT OUTPUT FORMAT
 
-Output ONLY the markers below with content inside them.
-Do not write anything outside the markers.
+CRITICAL: Output ONLY the markers below with content inside them.
+Do NOT use markdown formatting, code blocks, or backticks anywhere.
+Do NOT write anything before RESEARCH_SUMMARY_START or after RECOMMENDATION_END.
+Copy the marker names EXACTLY as shown — they are case-sensitive.
 
 RESEARCH_SUMMARY_START
 [2-3 sentences on what is trending in Bali/Indonesia real estate right now, based on scraping context. If scraping failed, note it briefly.]
