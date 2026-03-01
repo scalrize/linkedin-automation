@@ -52,6 +52,7 @@ jobs:
       #    This preserves the theme/pillar rotation state for next week's run
       - name: Commit updated post_log.txt
         if: success()
+        continue-on-error: true
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions Bot"
