@@ -386,7 +386,22 @@ def generate_all_posts(scraping_context):
         raise EnvironmentError("GEMINI_API_KEY environment variable is not set.")
 
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+
+    # Try models in order until one works
+    model = None
+    for model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]:
+        try:
+            candidate = genai.GenerativeModel(model_name)
+            candidate.generate_content("hello")
+            model = candidate
+            print(f"  Using Gemini model: {model_name}")
+            break
+        except Exception as e:
+            print(f"  Model {model_name} unavailable: {e}")
+            continue
+
+    if not model:
+        raise RuntimeError("No Gemini model available. Check your GEMINI_API_KEY.")
 
     with open(PROMPT_PATH, "r") as f:
         base_prompt = f.read()
