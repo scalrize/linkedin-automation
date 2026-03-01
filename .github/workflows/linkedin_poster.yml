@@ -2,8 +2,8 @@ name: LinkedIn Weekly Post Generator
 
 on:
   schedule:
-    - cron: '0 0 * * 1'   # Monday 00:00 UTC = 08:00 AM Bali time
-  workflow_dispatch:        # Manual trigger for testing
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -45,12 +45,7 @@ jobs:
           python -c "
           try:
               from send_email import send_failure_email
-              send_failure_email(
-                  'The LinkedIn automation pipeline failed this week.\n\n'
-                  'Check the Actions log:\n'
-                  'https://github.com/scalrize/linkedin-automation/actions\n\n'
-                  'Please generate your posts manually this week.'
-              )
+              send_failure_email('Pipeline failed. Check Actions log.')
           except Exception as e:
-              print(f'Could not send failure notification: {e}')
+              print(f'Could not send: {e}')
           "
