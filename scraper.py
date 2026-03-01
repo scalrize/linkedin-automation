@@ -66,14 +66,28 @@ def safe_scrape(app, url, max_chars=3000, timeout=25000):
     """
     Scrape a single URL with Firecrawl. Returns markdown string or None.
     Never raises — logs and returns None on any failure.
+    Handles both old (scrape_url) and new (scrape) Firecrawl API versions.
     """
     try:
-        result = app.scrape_url(
-            url,
-            params={"formats": ["markdown"], "timeout": timeout},
-        )
-        if result and result.get("markdown"):
+        # Try new API first (firecrawl-py v1+)
+        if hasattr(app, 'scrape_url'):
+            result = app.scrape_url(
+                url,
+                params={"formats": ["markdown"], "timeout": timeout},
+            )
+        elif hasattr(app, 'scrape'):
+            result = app.scrape(
+                url,
+                formats=["markdown"],
+            )
+        else:
+            print(f"    Firecrawl API method not found for {url}")
+            return None
+
+        if result and isinstance(result, dict) and result.get("markdown"):
             return result["markdown"][:max_chars]
+        elif hasattr(result, 'markdown') and result.markdown:
+            return result.markdown[:max_chars]
     except Exception as exc:
         print(f"    Scrape failed for {url}: {exc}")
     return None
