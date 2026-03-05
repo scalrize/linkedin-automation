@@ -161,27 +161,21 @@ def validate_post(post_text, hook):
 
 def _extract(text, tag):
     """
-    Extract text between {tag}_START and {tag}_END markers.
-    Handles cases where Gemini wraps output in markdown code blocks
-    or uses slight variations in marker formatting.
+    Extract text between XML tags: <TAG>...</TAG>.
+    Claude outputs XML tags reliably. Falls back to case-insensitive search.
     """
-    # Strip markdown code blocks if present
-    text = text.replace("```", "").replace("`", "")
-
-    start_marker = f"{tag}_START"
-    end_marker   = f"{tag}_END"
+    open_tag  = f"<{tag}>"
+    close_tag = f"</{tag}>"
     try:
-        s = text.index(start_marker) + len(start_marker)
-        e = text.index(end_marker)
+        s = text.index(open_tag) + len(open_tag)
+        e = text.index(close_tag)
         return text[s:e].strip()
     except ValueError:
-        # Try case-insensitive search as fallback
+        # Case-insensitive fallback
         text_lower = text.lower()
-        start_lower = start_marker.lower()
-        end_lower   = end_marker.lower()
         try:
-            s = text_lower.index(start_lower) + len(start_lower)
-            e = text_lower.index(end_lower)
+            s = text_lower.index(open_tag.lower()) + len(open_tag)
+            e = text_lower.index(close_tag.lower())
             return text[s:e].strip()
         except ValueError:
             return ""
@@ -241,58 +235,56 @@ Generate exactly TWO LinkedIn post options for **{day} {date_str}**.
 
 ## STRICT OUTPUT FORMAT
 
-CRITICAL: Output ONLY the markers below with content inside them.
-Do NOT use markdown formatting, code blocks, or backticks anywhere.
-Do NOT write anything before RESEARCH_SUMMARY_START or after RECOMMENDATION_END.
-Copy the marker names EXACTLY as shown — they are case-sensitive.
+CRITICAL: Use ONLY the XML tags below. Do not write anything outside them.
+Do NOT use markdown, code blocks, or backticks anywhere in your response.
 
-RESEARCH_SUMMARY_START
-[2-3 sentences on what is trending in Bali/Indonesia real estate right now, based on scraping context. If scraping failed, note it briefly.]
-RESEARCH_SUMMARY_END
+<RESEARCH_SUMMARY>
+2-3 sentences on what is trending in Bali/Indonesia real estate right now, based on scraping context. If scraping failed, note it briefly.
+</RESEARCH_SUMMARY>
 
-PROFILE_CHECK_START
-[Topics covered in Matthieu's last 60 days that were avoided this week. Note the top performing post style observed from his profile. If profile was unavailable, state so.]
-PROFILE_CHECK_END
+<PROFILE_CHECK>
+Topics covered in Matthieu's last 60 days that were avoided this week. Note the top performing post style observed from his profile. If profile was unavailable, state so.
+</PROFILE_CHECK>
 
-SOURCES_START
-[Comma-separated list of publication or source names used for this week's research]
-SOURCES_END
+<SOURCES>
+Comma-separated list of publication or source names used for this week's research
+</SOURCES>
 
-OPTION1_POST_START
-[Full LinkedIn post — {pillar1} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, ends with low-friction question CTA, max 5 hashtags at the bottom]
-OPTION1_POST_END
+<OPTION1_POST>
+Full LinkedIn post — {pillar1} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, ends with low-friction question CTA, max 5 hashtags at the bottom
+</OPTION1_POST>
 
-OPTION1_HOOK_START
-[First line of Option 1 only — must be under 200 characters]
-OPTION1_HOOK_END
+<OPTION1_HOOK>
+First line of Option 1 only — must be under 200 characters
+</OPTION1_HOOK>
 
-OPTION1_WHY_START
-[One sentence explaining the strategic angle that makes Option 1 effective this week]
-OPTION1_WHY_END
+<OPTION1_WHY>
+One sentence explaining the strategic angle that makes Option 1 effective this week
+</OPTION1_WHY>
 
-OPTION1_VISUAL_START
-[Specific image or graphic description for Option 1 — e.g. "Aerial photo of a Pererenan villa with pool, golden hour lighting"]
-OPTION1_VISUAL_END
+<OPTION1_VISUAL>
+Specific image or graphic description for Option 1 — e.g. "Aerial photo of a Pererenan villa with pool, golden hour lighting"
+</OPTION1_VISUAL>
 
-OPTION2_POST_START
-[Full LinkedIn post — {pillar2} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, meaningfully different angle from Option 1, ends with low-friction question CTA, max 5 hashtags at the bottom]
-OPTION2_POST_END
+<OPTION2_POST>
+Full LinkedIn post — {pillar2} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, meaningfully different angle from Option 1, ends with low-friction question CTA, max 5 hashtags at the bottom
+</OPTION2_POST>
 
-OPTION2_HOOK_START
-[First line of Option 2 only — must be under 200 characters]
-OPTION2_HOOK_END
+<OPTION2_HOOK>
+First line of Option 2 only — must be under 200 characters
+</OPTION2_HOOK>
 
-OPTION2_WHY_START
-[One sentence explaining the strategic angle that makes Option 2 effective this week]
-OPTION2_WHY_END
+<OPTION2_WHY>
+One sentence explaining the strategic angle that makes Option 2 effective this week
+</OPTION2_WHY>
 
-OPTION2_VISUAL_START
-[Specific image or graphic description for Option 2]
-OPTION2_VISUAL_END
+<OPTION2_VISUAL>
+Specific image or graphic description for Option 2
+</OPTION2_VISUAL>
 
-RECOMMENDATION_START
-Option [1 or 2] — [One sentence explaining why this option is the stronger choice this specific week]
-RECOMMENDATION_END
+<RECOMMENDATION>
+Option [1 or 2] — One sentence explaining why this option is the stronger choice this specific week
+</RECOMMENDATION>
 """
 
 
