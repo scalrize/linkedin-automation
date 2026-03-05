@@ -1,5 +1,5 @@
 """
-generate_post.py — LinkedIn Post Generator using Gemini 1.5 Pro
+generate_post.py — LinkedIn Post Generator using Claude (Anthropic API)
 
 Reads linkedin_prompt.md, injects scraping context, generates 4 validated
 post options per week (2 for Tuesday + 2 for Thursday).
@@ -14,7 +14,7 @@ import os
 import time
 from datetime import datetime, timedelta
 
-import google.generativeai as genai
+import anthropic
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -157,7 +157,7 @@ def validate_post(post_text, hook):
     return (len(issues) == 0), issues
 
 
-# ── Gemini Output Parsing ──────────────────────────────────────────────────────
+# ── Output Parsing ─────────────────────────────────────────────────────────────
 
 def _extract(text, tag):
     """
@@ -298,7 +298,7 @@ RECOMMENDATION_END
 
 # ── Generation with Retry ──────────────────────────────────────────────────────
 
-def generate_for_day(model, base_prompt, day, date_str,
+def generate_for_day(client, base_prompt, day, date_str,
                      theme, pillar1, pillar2, scraping_context):
     """
     Generate two post options for one day with up to 3 validation attempts.
@@ -314,8 +314,12 @@ def generate_for_day(model, base_prompt, day, date_str,
     for attempt in range(1, 4):
         print(f"  [{day}] Attempt {attempt}/3 ...")
         try:
-            response = model.generate_content(prompt)
-            parsed = parse_day_response(response.text)
+            message = client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=4096,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            parsed = parse_day_response(message.content[0].text)
             last_parsed = parsed
 
             opt1  = parsed.get("option1_post", "")
@@ -373,27 +377,12 @@ def generate_all_posts(scraping_context):
     Generate all four posts and return a structured results dict.
     Called by main.py with the scraping context string.
     """
-    api_key = os.environ.get("GEMINI_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        raise EnvironmentError("GEMINI_API_KEY environment variable is not set.")
+        raise EnvironmentError("ANTHROPIC_API_KEY environment variable is not set.")
 
-    genai.configure(api_key=api_key)
-
-    # Try models in order until one works
-    model = None
-    for model_name in ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]:
-        try:
-            candidate = genai.GenerativeModel(model_name)
-            candidate.generate_content("hello")
-            model = candidate
-            print(f"  Using Gemini model: {model_name}")
-            break
-        except Exception as e:
-            print(f"  Model {model_name} unavailable: {e}")
-            continue
-
-    if not model:
-        raise RuntimeError("No Gemini model available. Check your GEMINI_API_KEY.")
+    client = anthropic.Anthropic(api_key=api_key)
+    print("  Using Claude model: claude-sonnet-4-6")
 
     with open(PROMPT_PATH, "r") as f:
         base_prompt = f.read()
@@ -413,7 +402,7 @@ def generate_all_posts(scraping_context):
     # ── Generate ──
     print(f"\n  Generating Tuesday posts — Theme: {rotation['tuesday_theme']}")
     tue_data, tue_warning = generate_for_day(
-        model, base_prompt,
+        client, base_prompt,
         "Tuesday", tue_str,
         rotation["tuesday_theme"],
         rotation["tuesday_pillar1"],
@@ -423,7 +412,7 @@ def generate_all_posts(scraping_context):
 
     print(f"\n  Generating Thursday posts — Theme: {rotation['thursday_theme']}")
     thu_data, thu_warning = generate_for_day(
-        model, base_prompt,
+        client, base_prompt,
         "Thursday", thu_str,
         rotation["thursday_theme"],
         rotation["thursday_pillar1"],
