@@ -205,87 +205,74 @@ def build_day_prompt(base_prompt, day, date_str, theme, pillar1, pillar2, scrapi
     """Assemble the full prompt for one day's generation."""
     banned_str = ", ".join(f'"{p}"' for p in BANNED_PHRASES)
 
-    return f"""{base_prompt}
+    # NOTE: base_prompt and scraping_context are concatenated as plain strings,
+    # NOT wrapped in an f-string. Scraped web content often contains { and }
+    # characters (JSON-LD, inline CSS, etc.) which would break an f-string.
+    task_header = (
+        "\n\n---\n\n"
+        "## CURRENT GENERATION TASK\n\n"
+        f"Generate exactly TWO LinkedIn post options for **{day} {date_str}**.\n\n"
+        f"- **THEME (both options):** {theme}\n"
+        f"- **OPTION 1 CONTENT PILLAR:** {pillar1}\n"
+        f"- **OPTION 2 CONTENT PILLAR:** {pillar2}\n\n"
+        "### SCRAPING CONTEXT\n"
+    )
 
----
+    validation = (
+        "\n\n---\n\n"
+        "## MANDATORY VALIDATION RULES — CHECK BEFORE OUTPUTTING\n\n"
+        "- Hook (first line) must be UNDER 200 characters\n"
+        "- Total post length must be 1,200 to 1,600 characters (inclusive)\n"
+        f"- Banned phrases — NEVER use any of these: {banned_str}\n"
+        "- Both options must cover the same theme but from different angles\n"
+        "- Both options must use their specified content pillar\n"
+        "- Active voice throughout — no passive constructions\n"
+    )
 
-## CURRENT GENERATION TASK
+    output_format = (
+        "\n\n---\n\n"
+        "## STRICT OUTPUT FORMAT\n\n"
+        "CRITICAL: Use ONLY the XML tags below. Do not write anything outside them.\n"
+        "Do NOT use markdown, code blocks, or backticks anywhere in your response.\n\n"
+        "<RESEARCH_SUMMARY>\n"
+        "2-3 sentences on what is trending in Bali/Indonesia real estate right now, based on scraping context. If scraping failed, note it briefly.\n"
+        "</RESEARCH_SUMMARY>\n\n"
+        "<PROFILE_CHECK>\n"
+        "Topics covered in Matthieu's last 60 days that were avoided this week. Note the top performing post style observed from his profile. If profile was unavailable, state so.\n"
+        "</PROFILE_CHECK>\n\n"
+        "<SOURCES>\n"
+        "Comma-separated list of publication or source names used for this week's research\n"
+        "</SOURCES>\n\n"
+        "<OPTION1_POST>\n"
+        f"Full LinkedIn post — {pillar1} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, ends with low-friction question CTA, max 5 hashtags at the bottom\n"
+        "</OPTION1_POST>\n\n"
+        "<OPTION1_HOOK>\n"
+        "First line of Option 1 only — must be under 200 characters\n"
+        "</OPTION1_HOOK>\n\n"
+        "<OPTION1_WHY>\n"
+        "One sentence explaining the strategic angle that makes Option 1 effective this week\n"
+        "</OPTION1_WHY>\n\n"
+        "<OPTION1_VISUAL>\n"
+        'Specific image or graphic description for Option 1 — e.g. "Aerial photo of a Pererenan villa with pool, golden hour lighting"\n'
+        "</OPTION1_VISUAL>\n\n"
+        "<OPTION2_POST>\n"
+        f"Full LinkedIn post — {pillar2} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, meaningfully different angle from Option 1, ends with low-friction question CTA, max 5 hashtags at the bottom\n"
+        "</OPTION2_POST>\n\n"
+        "<OPTION2_HOOK>\n"
+        "First line of Option 2 only — must be under 200 characters\n"
+        "</OPTION2_HOOK>\n\n"
+        "<OPTION2_WHY>\n"
+        "One sentence explaining the strategic angle that makes Option 2 effective this week\n"
+        "</OPTION2_WHY>\n\n"
+        "<OPTION2_VISUAL>\n"
+        "Specific image or graphic description for Option 2\n"
+        "</OPTION2_VISUAL>\n\n"
+        "<RECOMMENDATION>\n"
+        "Option [1 or 2] — One sentence explaining why this option is the stronger choice this specific week\n"
+        "</RECOMMENDATION>\n"
+    )
 
-Generate exactly TWO LinkedIn post options for **{day} {date_str}**.
-
-- **THEME (both options):** {theme}
-- **OPTION 1 CONTENT PILLAR:** {pillar1}
-- **OPTION 2 CONTENT PILLAR:** {pillar2}
-
-### SCRAPING CONTEXT
-{scraping_context}
-
----
-
-## MANDATORY VALIDATION RULES — CHECK BEFORE OUTPUTTING
-
-- Hook (first line) must be UNDER 200 characters
-- Total post length must be 1,200 to 1,600 characters (inclusive)
-- Banned phrases — NEVER use any of these: {banned_str}
-- Both options must cover the same theme but from different angles
-- Both options must use their specified content pillar
-- Active voice throughout — no passive constructions
-
----
-
-## STRICT OUTPUT FORMAT
-
-CRITICAL: Use ONLY the XML tags below. Do not write anything outside them.
-Do NOT use markdown, code blocks, or backticks anywhere in your response.
-
-<RESEARCH_SUMMARY>
-2-3 sentences on what is trending in Bali/Indonesia real estate right now, based on scraping context. If scraping failed, note it briefly.
-</RESEARCH_SUMMARY>
-
-<PROFILE_CHECK>
-Topics covered in Matthieu's last 60 days that were avoided this week. Note the top performing post style observed from his profile. If profile was unavailable, state so.
-</PROFILE_CHECK>
-
-<SOURCES>
-Comma-separated list of publication or source names used for this week's research
-</SOURCES>
-
-<OPTION1_POST>
-Full LinkedIn post — {pillar1} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, ends with low-friction question CTA, max 5 hashtags at the bottom
-</OPTION1_POST>
-
-<OPTION1_HOOK>
-First line of Option 1 only — must be under 200 characters
-</OPTION1_HOOK>
-
-<OPTION1_WHY>
-One sentence explaining the strategic angle that makes Option 1 effective this week
-</OPTION1_WHY>
-
-<OPTION1_VISUAL>
-Specific image or graphic description for Option 1 — e.g. "Aerial photo of a Pererenan villa with pool, golden hour lighting"
-</OPTION1_VISUAL>
-
-<OPTION2_POST>
-Full LinkedIn post — {pillar2} pillar — 1,200 to 1,600 characters, hook under 200 chars, no banned phrases, meaningfully different angle from Option 1, ends with low-friction question CTA, max 5 hashtags at the bottom
-</OPTION2_POST>
-
-<OPTION2_HOOK>
-First line of Option 2 only — must be under 200 characters
-</OPTION2_HOOK>
-
-<OPTION2_WHY>
-One sentence explaining the strategic angle that makes Option 2 effective this week
-</OPTION2_WHY>
-
-<OPTION2_VISUAL>
-Specific image or graphic description for Option 2
-</OPTION2_VISUAL>
-
-<RECOMMENDATION>
-Option [1 or 2] — One sentence explaining why this option is the stronger choice this specific week
-</RECOMMENDATION>
-"""
+    return base_prompt + task_header + scraping_context + validation + output_format
 
 
 # ── Generation with Retry ──────────────────────────────────────────────────────
