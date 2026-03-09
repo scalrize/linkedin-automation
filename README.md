@@ -6,11 +6,11 @@ Automatically generates four LinkedIn post options every Monday and delivers the
 
 ## HOW IT WORKS
 
-Every **Monday at 00:00 UTC (08:00 AM Bali time)**, GitHub runs the automation automatically:
+Every **Sunday at 23:45 UTC (07:45 AM Bali time Monday)**, GitHub runs the automation automatically:
 
 1. Scrapes Matthieu's LinkedIn profile for voice and recent topics
 2. Scrapes industry LinkedIn content for trending Bali/Indonesia real estate topics
-3. Generates four post options via Gemini AI — two for Tuesday, two for Thursday
+3. Generates four post options via Claude AI (Anthropic) — two for Tuesday, two for Thursday
 4. Sends one email to matthieu.jammers@gmail.com with all four options formatted and ready to copy
 5. Logs the run so themes and pillars rotate correctly next week
 
@@ -24,17 +24,17 @@ You need to complete these steps once before the system works. After that, it ru
 
 ---
 
-### STEP 1 — GET YOUR GEMINI API KEY
+### STEP 1 — GET YOUR ANTHROPIC API KEY
 
-This key lets the system use Google's AI to write the posts.
+This key lets the system use Claude AI to write the posts.
 
-1. Go to **https://aistudio.google.com**
-2. Sign in with **hello@scalrize.com** (your Gemini Pro account)
-3. Click **"Get API Key"** in the top menu
-4. Click **"Create API key"**
-5. Copy the key — it looks like: `AIzaSy...`
+1. Go to **https://console.anthropic.com**
+2. Sign in or create an account
+3. Go to **"API Keys"** in the left menu
+4. Click **"Create Key"**
+5. Copy the key — it looks like: `sk-ant-...`
 
-**Save this. You will add it to GitHub in Step 5 as `GEMINI_API_KEY`.**
+**Save this. You will add it to GitHub in Step 5 as `ANTHROPIC_API_KEY`.**
 
 ---
 
@@ -96,7 +96,7 @@ When you run the script:
 5. Return to your terminal — you will see: `Token saved to token.json`
 
 Now open the `token.json` file that was created in the folder:
-- Open it with any text editor
+- Open it with **TextEdit** (not terminal) — use Cmd+A to select all, Cmd+C to copy
 - Copy the **entire contents** of the file
 
 **Save this. You will add it to GitHub in Step 5 as `GMAIL_TOKEN`.**
@@ -129,7 +129,7 @@ GitHub Secrets store your credentials securely so the automation can use them wi
 
 | Secret Name | Value to paste |
 |---|---|
-| `GEMINI_API_KEY` | The key from Step 1 |
+| `ANTHROPIC_API_KEY` | The key from Step 1 |
 | `GMAIL_CREDENTIALS` | The full contents of credentials.json from Step 2 |
 | `GMAIL_TOKEN` | The full contents of token.json from Step 3 |
 | `FIRECRAWL_API_KEY` | The key from Step 4 |
@@ -155,7 +155,7 @@ A green checkmark = everything worked. A red X = check the troubleshooting secti
 
 ## WHAT HAPPENS EVERY MONDAY
 
-- You receive one email at 08:00 AM Bali time
+- You receive one email at 07:45 AM Bali time
 - The email contains four posts: two options for Tuesday, two for Thursday
 - Each option shows the post text, character count, read time, suggested visual, and why it was chosen
 - A recommendation tells you which option is stronger that week
@@ -191,10 +191,9 @@ A green checkmark = everything worked. A red X = check the troubleshooting secti
 - Your GMAIL_TOKEN has expired
 - Redo Step 3 (run authorize_gmail.py again) and update the GMAIL_TOKEN secret with the new token.json contents
 
-**"Gemini API error" in the Actions log**
-- Verify your GEMINI_API_KEY is correct
-- Make sure it was generated from hello@scalrize.com (your Gemini Pro account)
-- Check that your Gemini Pro subscription is still active at aistudio.google.com
+**"ANTHROPIC_API_KEY environment variable is not set" in the Actions log**
+- The ANTHROPIC_API_KEY secret is missing from GitHub
+- Follow Step 1 and Step 5 to add it
 
 **"Scraping failed" warning in the email**
 - This is normal — LinkedIn blocks scrapers frequently
@@ -216,7 +215,7 @@ A green checkmark = everything worked. A red X = check the troubleshooting secti
 ```
 linkedin-automation/
 ├── main.py                    ← Master script (runs the full pipeline)
-├── generate_post.py           ← Gemini AI post generation + validation
+├── generate_post.py           ← Claude AI post generation + validation
 ├── send_email.py              ← Gmail API email sender
 ├── scraper.py                 ← Firecrawl scraper + fallback sources
 ├── linkedin_prompt.md         ← Full AI prompt and content guidelines
@@ -235,7 +234,7 @@ linkedin-automation/
 
 | Service | Account |
 |---|---|
-| Gemini AI (post generation) | hello@scalrize.com |
+| Claude AI — Anthropic (post generation) | console.anthropic.com |
 | Gmail API (email sending) | matthieu.jammers@gmail.com |
 | GitHub (automation hosting) | scalrize |
 | Firecrawl (web scraping) | Your existing account |
@@ -245,11 +244,11 @@ linkedin-automation/
 ## COST
 
 - **GitHub Actions:** Free (well within the free tier limits)
-- **Gemini AI:** Covered by your existing Gemini Pro subscription at hello@scalrize.com
+- **Claude AI:** Pay-per-use via Anthropic API (approx. $0.05–0.10 per weekly run)
 - **Firecrawl:** Free tier (1 run per week uses minimal credits)
 - **Gmail API:** Free
 
-Total additional cost: **$0**
+Total additional cost: **~$0.05–0.10/week**
 
 ---
 
