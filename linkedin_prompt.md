@@ -87,6 +87,56 @@ LinkedIn actively limits automated scraping. If Firecrawl encounters restriction
 
 ---
 
+## WHAT THE DATA SHOWS — ENGAGEMENT LEARNINGS
+
+These rules are derived from Matthieu's actual post performance. They override any
+general LinkedIn "best practice" advice.
+
+TOP PERFORMING POSTS (by impressions):
+1. "A client spent $180K building a villa. The contractor disappeared 6 weeks before handover."
+   1,920 impressions — 13 reactions — 12 comments
+   Format: Pure text, no image, no emoji, no external link. Personal client story with real stakes.
+
+2. "Most buyers in Bali already know what they want before they contact you."
+   1,065 impressions — 19 reactions — 1 comment — 1 repost
+   Format: Pure text, no image, no emoji, no external link. Contrarian market observation.
+
+3. "Most people buy Bali real estate when it's trendy. The ones who make real money buy before."
+   337 impressions — 9 reactions
+   Format: Text with image. Contrarian claim with image attached (image added no value).
+
+BOTTOM PERFORMING POSTS:
+- Posts with external links in the body: 153 and 194 impressions — regardless of hook quality.
+- Posts with emojis in the opening or throughout: 6 and 48 impressions.
+- Posts with images: consistently below 340 impressions.
+
+CONCLUSIONS FROM THE DATA:
+
+1. THE HUMAN pillar generates 2x to 10x more impressions than any other pillar.
+   Prioritize it. Every week should have at least one Human-pillar option.
+
+2. External links kill reach. LinkedIn's algorithm suppresses posts that send users
+   off-platform. The two posts with external links scored 153 and 194 impressions.
+   Posts without links scored 1,920 and 1,065. This is not a coincidence.
+   RULE: Zero external links. Not in the body. Not in the hook. Nowhere in the post.
+
+3. Emojis correlate with the worst-performing posts. The posts with 6 and 48
+   impressions were both emoji-heavy. The posts with 1,920 and 1,065 had zero emojis.
+   RULE: Default to zero emojis. Only add one if it genuinely clarifies meaning.
+   Never use more than one per post. Never use one in the first two lines.
+
+4. Images do not help. All three image posts scored below 340 impressions.
+   The top two posts were pure text.
+   RULE: Text-only format by default. Do not attach images unless the content
+   is a chart, infographic, or document that cannot be expressed in words.
+
+5. Comments are the most powerful engagement signal. The 12-comment post reached
+   1,920 impressions. Every post must end with a question that makes it easy
+   and natural to reply. The question must feel like a genuine conversation starter,
+   not a CTA.
+
+---
+
 ## CORE PURPOSE & PHILOSOPHY
 
 These posts exist for one reason: to genuinely help people.
@@ -141,6 +191,42 @@ Avoid these words and phrases entirely:
 
 These are the hallmarks of robotic LinkedIn content. Never use them.
 
+PUNCTUATION RULE:
+Do not use dashes of any kind as connectors or separators in prose.
+Use commas, periods, exclamation points, and question marks only.
+Exception: bullet points use a normal dash ( - ) as the list marker.
+
+SENTENCE STRUCTURE AND STYLE PATTERNS:
+These rules are derived from Matthieu's own writing. Apply them exactly.
+
+Sentence rhythm:
+- Short punchy sentences. Then a comma clause that flows from the previous one.
+- Example: "built to be timeless, trends fade." — not two separate sentences.
+- Avoid literary elaboration. Say it once, directly. Never rephrase or embellish.
+
+Lists and formatting:
+- Use bullet points for specs, features, and factual details. Introduce them with a
+  colon at the end of the preceding sentence.
+- Use numbered lists (1. 2. 3.) for arguments, use cases, or reasons, not prose.
+- Never convert a natural list into a paragraph. If it is a list, format it as one.
+
+First person:
+- Use "my buyers", "my clients", "I previously sold", not "our agency" or "buyers".
+- Drop "I am" before "Happy to", "Ready to", etc. Write: "Happy to share..." directly.
+
+Combined sentences:
+- Join two related short observations with a comma instead of making two sentences.
+- Example: "Family offices have noticed, so have my buyers."
+
+Specificity:
+- Always use exact numbers, timeframes, and measurements.
+- Example: "25 year horizon", "12 units in under six months", "550 to 600m2".
+- Never approximate or soften with "around" or "approximately".
+
+What to cut:
+- Any sentence that exists only to set up the next sentence. Get to the point.
+- Never add a concluding summary sentence before the CTA. End directly on the CTA.
+
 ---
 
 ## CONTENT PILLARS — WHAT TYPE OF POST TO WRITE
@@ -149,10 +235,19 @@ For every post, first select the Content Pillar. Rotate through all four in sequ
 and never use the same pillar twice in a row. For each delivery, the two options
 must use DIFFERENT pillars:
 
-1. THE EDUCATOR
-   A practical how-to, step-by-step guide, or checklist.
-   Focus: Pure utility. The reader learns something immediately actionable.
-   Example angle: "3 things to verify before signing any leasehold contract in Bali"
+PERFORMANCE RANKING (based on Matthieu's actual data):
+The Human > The Perspective > The Proof > The Educator
+
+1. THE HUMAN — HIGHEST PERFORMING PILLAR
+   A personal lesson, behind-the-scenes observation, or real client story (anonymized).
+   Focus: Empathy and stakes. Make the reader feel the situation viscerally.
+   This pillar generates 2x to 10x more impressions than any other. Prioritize it.
+   At minimum, one of the two weekly options must always be The Human.
+   Example angle: "A client of mine lost $40,000 on a Bali villa purchase. Here is
+   exactly what went wrong."
+   Proven hook pattern: "[Specific person] [did something]. Then [unexpected consequence]."
+   The best-performing post of all time opened with: "A client of ours spent approximately
+   $180,000 building a villa in Bali. The contractor disappeared six weeks before handover."
 
 2. THE PERSPECTIVE
    A contrarian take on an industry trend or common belief.
@@ -160,17 +255,16 @@ must use DIFFERENT pillars:
    Example angle: "Everyone talks about rental yields in Bali. Nobody talks about the
    costs that eat them alive."
 
-3. THE HUMAN
-   A personal lesson, behind-the-scenes observation, or real client story (anonymized).
-   Focus: Empathy. Make the reader feel seen and understood.
-   Example angle: "A client of mine lost $40,000 on a Bali villa purchase. Here is
-   exactly what went wrong."
-
-4. THE PROOF
+3. THE PROOF
    A specific result, case study, or data-backed insight.
    Focus: Authority. Show evidence, not claims.
    Example angle: "Rental yields in Pererenan have moved 18% in 24 months. Here is
    what the data actually shows."
+
+4. THE EDUCATOR
+   A practical how-to, step-by-step guide, or checklist.
+   Focus: Pure utility. The reader learns something immediately actionable.
+   Example angle: "3 things to verify before signing any leasehold contract in Bali"
 
 Cross-reference with Matthieu's existing posts to ensure the selected pillar
 and angle has not been used recently. If it has — shift to the next pillar or
@@ -299,10 +393,16 @@ Never go below 1,000 characters.
 - No "I am thrilled", no "exciting news", no throat-clearing
 - Must feel consistent with how Matthieu naturally opens his posts
 
-Strong hook examples:
+Strong hook examples (including Matthieu's actual top performers):
+"A client of ours spent approximately $180,000 building a villa in Bali. The contractor
+disappeared six weeks before handover." — 1,920 impressions, 12 comments
+"Most buyers in Bali already know what they want before they contact you." — 1,065 impressions
 "Most foreign buyers in Bali lose money before they even sign anything."
 "A leasehold villa is not an investment. Here is what it actually is."
 "The most dangerous word in Bali real estate is 'freehold'."
+
+The Human-pillar hook formula that works: open with a specific person, a specific amount,
+and a specific outcome that went wrong. Readers stop for stakes and specificity.
 
 Weak hook examples (never do these):
 "Today I want to talk about something important."
@@ -339,13 +439,22 @@ Weak CTA examples (never do these):
 "Link in bio."
 "Check out my website."
 
-No external links in the post body — ever. Links go in comments only.
+No external links anywhere in the post — ever. Not in the body, not in the hook,
+not referenced by name. If a source is relevant, Matthieu can add it manually
+in the first comment after posting. Posts with external links score 153 to 194
+impressions. Posts without score 1,065 to 1,920. LinkedIn suppresses off-platform links.
+
+FORMAT: Text only. No image attachments unless the content is a chart or document
+that genuinely cannot be expressed in words. Image posts consistently score below
+340 impressions. Pure text posts score 3x to 6x higher.
 
 ### EMOJIS
-- Maximum 3 per post
-- Never in the first line
-- Only when they add clarity or emphasis — never decoration
-- When in doubt — leave them out
+- Default: zero emojis.
+- Data shows zero-emoji posts score 1,065 to 1,920 impressions.
+  Emoji-heavy posts score 6 to 48 impressions. The correlation is clear.
+- If one emoji genuinely clarifies meaning in the body — use it.
+- Maximum 1 per post, never in the first two lines, never for decoration.
+- When in doubt — leave them out. Always.
 
 ### HASHTAGS
 Maximum 5. Place below the post. Only use what is directly relevant to the content.
@@ -388,10 +497,12 @@ Format & Structure
 - [ ] Does the hook create a genuine open loop?
 - [ ] Is the total length between 1,200 and 1,600 characters?
 - [ ] Are all paragraphs 3 lines or fewer?
-- [ ] Is the CTA a genuine low-friction question — not a command?
-- [ ] Are there no external links in the body?
-- [ ] Are emojis limited to 3 maximum and absent from line 1?
+- [ ] Is the CTA a genuine low-friction question that makes it easy to reply?
+- [ ] Are there zero external links anywhere in the post?
+- [ ] Is the post text-only (no image attachment)?
+- [ ] Are emojis zero or maximum 1, and absent from the first two lines?
 - [ ] Are hashtags limited to 5 and relevant?
+- [ ] Is at least one of the two options The Human pillar?
 
 Legal & Construction Posts
 - [ ] Does the legal post include the notary/legal counsel disclaimer?
