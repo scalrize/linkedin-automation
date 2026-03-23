@@ -1,64 +1,51 @@
 """
-send_email.py — Send weekly LinkedIn post options via Gmail API (OAuth 2.0)
+send_email.py — Send weekly LinkedIn post options via Gmail SMTP + App Password
 
-Authentication  : reads GMAIL_TOKEN JSON from environment variable
-Token refresh   : handled automatically by google-auth library (uses refresh_token)
+Authentication  : GMAIL_APP_PASSWORD environment variable (never expires)
 Recipient       : matthieu.jammers@gmail.com
 Sender          : matthieu.jammers@gmail.com
-Schedule        : called by main.py every Monday 00:00 UTC
+Schedule        : called by main.py every Sunday night
 """
 
 import os
-import json
-import base64
+import smtplib
 from datetime import datetime
 from email.mime.text import MIMEText
-
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
 RECIPIENT = "matthieu.jammers@gmail.com"
 SENDER    = "matthieu.jammers@gmail.com"
-SCOPES    = ["https://www.googleapis.com/auth/gmail.send"]
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
 
 DIVIDER   = "════════════════════════════════════════"
 
 
 # ── Gmail Authentication ───────────────────────────────────────────────────────
 
-def get_gmail_service():
-    """
-    Build an authenticated Gmail service client.
-
-    Reads the full token JSON (including refresh_token) from the GMAIL_TOKEN
-    environment variable. The google-auth library automatically refreshes
-    the access token when it expires — no manual intervention needed.
-    """
-    token_json = os.environ.get("GMAIL_TOKEN")
-    if not token_json:
+def send_via_smtp(subject, body):
+    app_password = os.environ.get("GMAIL_APP_PASSWORD")
+    if not app_password:
         raise EnvironmentError(
-            "GMAIL_TOKEN environment variable is not set. "
-            "Add it as a GitHub Secret (see README.md for instructions)."
+            "GMAIL_APP_PASSWORD environment variable is not set. "
+            "Add it as a GitHub Secret."
         )
 
-    token_data = json.loads(token_json)
-    creds = Credentials.from_authorized_user_info(token_data, SCOPES)
+    message = MIMEText(body, "plain", "utf-8")
+    message["to"]      = RECIPIENT
+    message["from"]    = SENDER
+    message["subject"] = subject
 
-    # Refresh access token if expired
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-
-    service = build("gmail", "v1", credentials=creds)
-    return service
+    with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SENDER, app_password.replace(" ", ""))
+        server.sendmail(SENDER, RECIPIENT, message.as_bytes())
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def read_time_seconds(text):
-    """Estimate reading time at 200 words per minute."""
     words = len(text.split())
     return max(1, round((words / 200) * 60))
 
@@ -71,10 +58,6 @@ def char_count(text):
 
 def format_day_section(day_label, date_str, theme,
                         data, warning, pillar1, pillar2):
-    """
-    Format one day's section (Tuesday or Thursday) of the weekly email.
-    Follows the exact layout specified in the brief.
-    """
     opt1    = data.get("option1_post",   "[Post generation failed — please write manually]")
     opt2    = data.get("option2_post",   "[Post generation failed — please write manually]")
     why1    = data.get("option1_why",    "Strategic angle unavailable.")
@@ -89,7 +72,6 @@ def format_day_section(day_label, date_str, theme,
     rt2 = read_time_seconds(opt2)
 
     warning_block = f"\n{warning}\n" if warning else ""
-
     day_upper = day_label.upper()
 
     section = f"""
@@ -119,10 +101,6 @@ Suggested visual: {vis2}
 
 
 def build_email_body(results):
-    """
-    Assemble the full email body from generation results.
-    Follows the exact format specified in the brief.
-    """
     rotation  = results["rotation"]
     tue_data  = results["tuesday_data"]
     thu_data  = results["thursday_data"]
@@ -147,7 +125,6 @@ def build_email_body(results):
         rotation["thursday_pillar2"],
     )
 
-    # Research summary — drawn from Tuesday's AI response
     research_summary = tue_data.get(
         "research_summary",
         "Research data unavailable this week — fallback sources were used."
@@ -194,78 +171,41 @@ Thursday theme:  {results['next_thursday_theme']}
 # ── Send Functions ─────────────────────────────────────────────────────────────
 
 def send_weekly_email(results):
-    """
-    Build and send the weekly LinkedIn options email.
-    Subject format: "Your LinkedIn Posts for the Week — 9 March 2026"
-    """
-    service = get_gmail_service()
+    today      = datetime.utcnow()
+    date_label = today.strftime("%-d %B %Y")
+    subject    = f"Your LinkedIn Posts for the Week — {date_label}"
+    body       = build_email_body(results)
 
-    today       = datetime.utcnow()
-    date_label  = today.strftime("%-d %B %Y")
-    subject     = f"Your LinkedIn Posts for the Week — {date_label}"
-
-    body    = build_email_body(results)
-    message = MIMEText(body, "plain", "utf-8")
-    message["to"]      = RECIPIENT
-    message["from"]    = SENDER
-    message["subject"] = subject
-
-    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    service.users().messages().send(userId="me", body={"raw": raw}).execute()
-
+    send_via_smtp(subject, body)
     print(f"  ✓ Email sent to {RECIPIENT}")
     print(f"  ✓ Subject: {subject}")
     return True
 
 
 def send_failure_email(error_message):
-    """
-    Send a failure notification email so Matthieu knows to post manually.
-    Safe to call even if the main generation failed — uses minimal dependencies.
-    """
-    try:
-        service = get_gmail_service()
-    except Exception as e:
-        print(f"  ✗ Could not authenticate Gmail for failure notification: {e}")
-        return
-
     today   = datetime.utcnow().strftime("%-d %B %Y")
-    subject = f"⚠️ LinkedIn Automation Failed — {today}"
+    subject = f"LinkedIn Automation Failed — {today}"
 
     body = f"""Hi Matthieu,
 
-The LinkedIn post automation system encountered an error this week and could not complete your posts.
+The LinkedIn post automation encountered an error and could not generate your posts this week.
 
 Error details:
 {error_message}
 
 What to do:
-Please generate your LinkedIn posts manually for this week.
+Re-trigger manually: GitHub → scalrize/linkedin-automation → Actions → LinkedIn Weekly Post Generator → Run workflow
 
-You can also re-trigger the automation by going to:
-https://github.com/scalrize/linkedin-automation
-→ Click the "Actions" tab
-→ Click "LinkedIn Weekly Post Generator"
-→ Click "Run workflow"
-
-If the error keeps happening, check that all four GitHub Secrets are still valid:
-  • GEMINI_API_KEY
-  • GMAIL_TOKEN
-  • FIRECRAWL_API_KEY
-
-See README.md for instructions on refreshing any expired credentials.
+If the error keeps happening, check that all GitHub Secrets are still valid:
+  ANTHROPIC_API_KEY
+  GMAIL_APP_PASSWORD
+  FIRECRAWL_API_KEY
 
 This message was sent automatically by the LinkedIn Automation system.
 """
 
     try:
-        message = MIMEText(body, "plain", "utf-8")
-        message["to"]      = RECIPIENT
-        message["from"]    = SENDER
-        message["subject"] = subject
-
-        raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-        service.users().messages().send(userId="me", body={"raw": raw}).execute()
+        send_via_smtp(subject, body)
         print(f"  ✓ Failure notification sent to {RECIPIENT}")
     except Exception as e:
         print(f"  ✗ Could not send failure notification: {e}")

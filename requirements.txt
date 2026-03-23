@@ -4,12 +4,6 @@
 # Claude AI (Post Generation)
 anthropic>=0.40.0
 
-# Gmail API (Email Delivery)
-google-auth>=2.28.0
-google-auth-oauthlib>=1.2.0
-google-auth-httplib2>=0.2.0
-google-api-python-client>=2.120.0
-
 # Firecrawl (Web Scraping)
 firecrawl-py>=0.0.20
 

@@ -32,15 +32,15 @@ jobs:
       - name: Run LinkedIn automation pipeline
         id: pipeline
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GMAIL_TOKEN:       ${{ secrets.GMAIL_TOKEN }}
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          FIRECRAWL_API_KEY:  ${{ secrets.FIRECRAWL_API_KEY }}
         run: python main.py
 
       - name: Send failure notification email
         if: steps.pipeline.outcome == 'failure'
         env:
-          GMAIL_TOKEN: ${{ secrets.GMAIL_TOKEN }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: |
           python -c "
           try:
